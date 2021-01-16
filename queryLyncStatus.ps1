@@ -21,7 +21,7 @@ while($true){
     $myActivityId = $lyncclient.Self.Contact.GetContactInformation("ActivityId")
 
     if ($myActivityId -ne $myLastActivityId) {
-        Invoke-RestMethod -Uri $Url -Method 'Post' -Body @{ presence = $myActivityId }
+        Invoke-RestMethod -Uri $Url -Method 'Post' -Body @{ state = $myActivityId }
     }
 
     start-sleep –Seconds $sleepInterval 
