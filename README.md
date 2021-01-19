@@ -28,13 +28,9 @@ Remove-Job -Id {Job ID}  # Removes the Job from the Job List
 
 * Raspberry Pi / Raspberry Pi Zero with SPI enabled (see below)
 * Pimoroni Unicorn HAT Mini for Raspberry Pi - PIM498 (https://www.adafruit.com/product/4637)
-* Python 3.8+
-  * Flask
-  * UnicornHatMini
 
 ```bash
 $ sudo raspi-config nonint do_spi 0
-$ pip3 install flask
-$ pip3 install unicornhatmini
+$ pip3 install -r requirements.txt
 ```
 
