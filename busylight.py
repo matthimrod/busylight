@@ -29,13 +29,24 @@ statuses = {
 
 status = {}
 
+def set_state(text):
+    if text in statuses:
+        set_color(statuses[text])
+
+def set_color(color):
+    if color == 'off':
+        unicornhatmini.clear()
+    elif color in colors:
+        unicornhatmini.set_all(colors[color][0],colors[color][1],colors[color][2])
+        unicornhatmini.show()
+
 @app.route('/heartbeat')
 def heartbeat():
     return '200 - OK'
 
 @app.route('/api/presence', methods=['POST'])
 def presence():
-    if request.form['presence'] and not status['override']:
+    if request.form['state'] and not status['override']:
         status['presence'] = request.form['state'].lower()
         set_state(status['presence'])
         return f"Presence successfully updated to {status['presence']}."
@@ -69,14 +80,3 @@ if __name__ == '__main__':
     unicornhatmini.set_brightness(bright)
     unicornhatmini.clear()
     app.run(host='0.0.0.0')
-
-def set_state(text):
-    if statuses.has_key(text):
-        set_color(statuses[text])
-
-def set_color(color):
-    if color == 'off':
-        unicornhatmini.clear()
-    elif colors.has_key(color):
-        unicornhatmini.set_all(colors[color][0],colors[color][1],colors[color][2])
-        unicornhatmini.show()
