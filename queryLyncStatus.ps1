@@ -22,6 +22,7 @@ while($true){
 
     if ($myActivityId -ne $myLastActivityId) {
         Invoke-RestMethod -Uri $Url -Method 'Post' -Body @{ state = $myActivityId }
+        $myLastActivityId = $myActivityId
     }
 
     start-sleep –Seconds $sleepInterval 

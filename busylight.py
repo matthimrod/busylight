@@ -23,8 +23,10 @@ statuses = {
     "berightback": "yellow",
     "busy": "orange",
     "donotdisturb": "red",
-    "free": "yellow",
-    "on-the-phone": "red"
+    "free": "green",
+    "in-a-meeting": "red",
+    "on-the-phone": "red",
+    "other": "blue"
 }
 
 status = {}
@@ -32,6 +34,10 @@ status = {}
 def set_state(text):
     if text in statuses:
         set_color(statuses[text])
+        print(f"State {text}; {statuses[text]}.")
+    else: 
+        set_color(statuses["other"])
+        print(f"Undefined state {text}; Using {statuses['other']}.")
 
 def set_color(color):
     if color == 'off':
@@ -49,10 +55,10 @@ def presence():
     if request.form['state'] and not status['override']:
         status['presence'] = request.form['state'].lower()
         set_state(status['presence'])
-        return f"Presence successfully updated to {status['presence']}."
+        return f"Presence {status['presence']} received."
     elif status['override']:
         status['presence'] = request.form['state'].lower()
-        return f"Override in place. Keeping override {status['override']}, but setting fallback to {status['presence']}."
+        return f"Presence {status['presence']} received. Override {status['override']} active."
     else:
         return f"Unable to process request.", 400
 
@@ -61,11 +67,11 @@ def override():
     if request.form['override']:
         status['override'] = request.form['state'].lower()
         set_state(status['override'])
-        return f"Override successfully updated to {status['override']}."
+        return f"Override {status['override']} received."
     elif request.form['clear'].lower() == 'true':
         status['override'] = None
         set_state(status['presence'])
-        return f"Presence reverted to {status['presence']}."
+        return f"Override cleared. Presence {status['presence']} set."
     else:
         return f"Unable to process request.", 400
 
