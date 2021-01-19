@@ -52,23 +52,23 @@ def heartbeat():
 
 @app.route('/api/presence', methods=['POST'])
 def presence():
-    if request.form['state'] and not status['override']:
-        status['presence'] = request.form['state'].lower()
+    if request.form.get('state') and not status['override']:
+        status['presence'] = request.form.get('state').lower()
         set_state(status['presence'])
         return f"Presence {status['presence']} received."
-    elif status['override']:
-        status['presence'] = request.form['state'].lower()
+    elif request.form.get('state') and status['override']:
+        status['presence'] = request.form.get('state').lower()
         return f"Presence {status['presence']} received. Override {status['override']} active."
     else:
         return f"Unable to process request.", 400
 
 @app.route('/api/override', methods=['POST'])
 def override():
-    if request.form['override']:
-        status['override'] = request.form['state'].lower()
+    if request.form.get('state'):
+        status['override'] = request.form.get('state').lower()
         set_state(status['override'])
         return f"Override {status['override']} received."
-    elif request.form['clear'].lower() == 'true':
+    elif request.form.get('clear').lower() == 'true':
         status['override'] = None
         set_state(status['presence'])
         return f"Override cleared. Presence {status['presence']} set."
