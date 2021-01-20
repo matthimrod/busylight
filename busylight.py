@@ -29,12 +29,13 @@ statuses = {
     "free": "yellow",
     "in-a-meeting": "red",
     "in-presentation": "red", 
+    "init": "green",
     "on-the-phone": "red",
     "other": "blue"
 }
 
 status = { 
-    'presence': "other",
+    'presence': "init",
     'override': None
 }
 
