@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import json
 from flask import Flask, request
 from flask.json import jsonify
 from unicornhatmini import UnicornHATMini
@@ -11,63 +12,57 @@ if not test_mode:
     unicornhatmini = UnicornHATMini()
 bright = 0.1
 
-colors = {
-    "red":    [255,   0,   0],
-    "orange": [255, 165,   0],
-    "yellow": [255, 255,   0],
-    "green":  [  0, 128,   0],
-    "blue":   [  0,   0, 255],
-    "purple": [128,   0, 128],
-    "white":  [255, 255, 255]
-}
-
-statuses = {
-    "away": "green",
-    "berightback": "yellow",
-    "busy": "orange",
-    "donotdisturb": "red",
-    "free": "yellow",
-    "in-a-meeting": "red",
-    "in-presentation": "red", 
-    "init": "green",
-    "on-the-phone": "red",
-    "other": "blue"
-}
+with open('config.json', 'r') as read_file:
+    config = json.load(read_file)
 
 status = { 
-    'presence': "init",
+    'presence': 'init',
     'override': None
 }
 
 def set_state(text):
-    if text in statuses:
-        set_color(statuses[text])
-        print(f"State {text}; {statuses[text]}.")
+    if text in config['statuses']:
+        set_color(config['statuses'][text])
+        print(f"State {text}; {config['statuses'][text]}.")
     else: 
-        set_color(statuses["other"])
-        print(f"Undefined state {text}; Using {statuses['other']}.")
+        set_color(config['statuses']['other'])
+        print(f"Undefined state {text}; Using {config['statuses']['other']}.")
 
 def set_color(color):
     if test_mode: 
         return
     elif color == 'off':
         unicornhatmini.clear()
-    elif color in colors:
-        unicornhatmini.set_all(colors[color][0],colors[color][1],colors[color][2])
+    elif color in config['colors']:
+        unicornhatmini.set_all(config['colors'][color][0],config['colors'][color][1],config['colors'][color][2])
         unicornhatmini.show()
 
 def get_color():
     if status['override']:
-        return statuses[status['override']]
+        return config['statuses'][status['override']]
     else:
-        return statuses[status['presence']]
+        return config['statuses'][status['presence']]
 
-@app.route('/heartbeat')
+@app.route('/heartbeat', methods=['GET'])
 def heartbeat():
     return '200 - OK'
 
+@app.route('/api/config', methods=['GET'])
+def get_config():
+    return jsonify(config)
+
+@app.route('/api/state', methods=['GET'])
+def get_state():
+    return jsonify(presence=status['presence'], override=status['override'], color=get_color())
+
+@app.route('/api/reload', methods=['GET'])
+def reload():
+    with open('config.json', 'r') as read_file:
+        config = json.load(read_file)
+    return jsonify(config)
+
 @app.route('/api/presence', methods=['POST'])
-def presence():
+def set_presence():
     if request.form.get('state'):
         status['presence'] = request.form.get('state').lower()
         if not status['override']:
@@ -79,7 +74,7 @@ def presence():
         return f"Unable to process request.", 400
 
 @app.route('/api/override', methods=['POST'])
-def override():
+def set_override():
     if request.form.get('state'):
         status['override'] = request.form.get('state').lower()
         set_state(status['override'])
@@ -91,10 +86,6 @@ def override():
     else:
         return f"Unable to process request.", 400
 
-
-@app.route('/api/state')
-def state():
-    return jsonify(presence=status['presence'], override=status['override'], color=get_color())
 
 if __name__ == '__main__':
     if not test_mode:
