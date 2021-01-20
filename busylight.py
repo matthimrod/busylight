@@ -5,7 +5,10 @@ from flask.json import jsonify
 from unicornhatmini import UnicornHATMini
 app = Flask(__name__)
 
-unicornhatmini = UnicornHATMini()
+test_mode = True
+
+if not test_mode:
+    unicornhatmini = UnicornHATMini()
 bright = 0.1
 
 colors = {
@@ -23,13 +26,17 @@ statuses = {
     "berightback": "yellow",
     "busy": "orange",
     "donotdisturb": "red",
-    "free": "green",
+    "free": "yellow",
     "in-a-meeting": "red",
+    "in-presentation": "red", 
     "on-the-phone": "red",
     "other": "blue"
 }
 
-status = {}
+status = { 
+    'presence': "other",
+    'override': None
+}
 
 def set_state(text):
     if text in statuses:
@@ -40,11 +47,19 @@ def set_state(text):
         print(f"Undefined state {text}; Using {statuses['other']}.")
 
 def set_color(color):
-    if color == 'off':
+    if test_mode: 
+        return
+    elif color == 'off':
         unicornhatmini.clear()
     elif color in colors:
         unicornhatmini.set_all(colors[color][0],colors[color][1],colors[color][2])
         unicornhatmini.show()
+
+def get_color():
+    if status['override']:
+        return statuses[status['override']]
+    else:
+        return statuses[status['presence']]
 
 @app.route('/heartbeat')
 def heartbeat():
@@ -52,13 +67,13 @@ def heartbeat():
 
 @app.route('/api/presence', methods=['POST'])
 def presence():
-    if request.form.get('state') and not status['override']:
+    if request.form.get('state'):
         status['presence'] = request.form.get('state').lower()
-        set_state(status['presence'])
-        return f"Presence {status['presence']} received."
-    elif request.form.get('state') and status['override']:
-        status['presence'] = request.form.get('state').lower()
-        return f"Presence {status['presence']} received. Override {status['override']} active."
+        if not status['override']:
+            set_state(status['presence'])
+            return f"Presence {status['presence']} received."
+        else:
+            return f"Presence {status['presence']} received. Override {status['override']} active."
     else:
         return f"Unable to process request.", 400
 
@@ -78,11 +93,11 @@ def override():
 
 @app.route('/api/state')
 def state():
-    return jsonify(presence=status['presence'], override=status['override'])
+    return jsonify(presence=status['presence'], override=status['override'], color=get_color())
 
 if __name__ == '__main__':
-    status['presence'] = None
-    status['override'] = None
-    unicornhatmini.set_brightness(bright)
-    unicornhatmini.clear()
+    if not test_mode:
+        unicornhatmini.set_brightness(bright)
+        unicornhatmini.clear()
+    set_state(status['presence'])
     app.run(host='0.0.0.0')
