@@ -10,20 +10,26 @@ test_mode = True
 
 if not test_mode:
     unicornhatmini = UnicornHATMini()
-bright = 0.1
 
 with open('config.json', 'r') as read_file:
     config = json.load(read_file)
 
 status = { 
-    'presence': 'init',
+    'presence': None,
     'override': None
 }
+
+@app.route('/heartbeat', methods=['GET'])
+def heartbeat():
+    return '200 - OK'
 
 def set_state(text):
     if text in config['statuses']:
         set_color(config['statuses'][text])
         print(f"State {text}; {config['statuses'][text]}.")
+    elif: text in config['colors']:
+        set_color(config[text])
+        print(f"Color {text}.")
     else: 
         set_color(config['statuses']['other'])
         print(f"Undefined state {text}; Using {config['statuses']['other']}.")
@@ -32,20 +38,19 @@ def set_color(color):
     if test_mode: 
         return
     elif color == 'off':
+        status['color']='off'
         unicornhatmini.clear()
+        unicornhatmini.show()
     elif color in config['colors']:
+        status['color']=color
         unicornhatmini.set_all(config['colors'][color][0],config['colors'][color][1],config['colors'][color][2])
         unicornhatmini.show()
 
 def get_color():
-    if status['override']:
-        return config['statuses'][status['override']]
-    else:
-        return config['statuses'][status['presence']]
-
-@app.route('/heartbeat', methods=['GET'])
-def heartbeat():
-    return '200 - OK'
+    if color in status:
+        return status['color']
+    else
+        return 'off'
 
 @app.route('/api/config', methods=['GET'])
 def get_config():
@@ -53,7 +58,7 @@ def get_config():
 
 @app.route('/api/state', methods=['GET'])
 def get_state():
-    return jsonify(presence=status['presence'], override=status['override'], color=get_color())
+    return jsonify(status)
 
 @app.route('/api/reload', methods=['GET'])
 def reload():
