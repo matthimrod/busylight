@@ -12,17 +12,10 @@ test_mode = '--test' in sys.argv
 if not test_mode:
     unicornhatmini = UnicornHATMini()
 
-with open('config.json', 'r') as read_file:
-    config = json.load(read_file)
-
 status = { 
     'presence': None,
     'override': None
 }
-
-@app.route('/heartbeat', methods=['GET'])
-def heartbeat():
-    return '200 - OK'
 
 def set_state(text):
     if text in config['statuses']:
@@ -32,7 +25,7 @@ def set_state(text):
         set_color('off')
         print(f"State off.")
     elif text in config['colors']:
-        set_color(config[text])
+        set_color(text)
         print(f"Color {text}.")
     else: 
         print(f"Undefined state {text}.")
@@ -55,6 +48,10 @@ def get_color():
     else:
         return 'off'
 
+@app.route('/heartbeat', methods=['GET'])
+def heartbeat():
+    return '200 - OK'
+
 @app.route('/api/config', methods=['GET'])
 def get_config():
     return jsonify(config)
@@ -64,10 +61,13 @@ def get_state():
     return jsonify(status)
 
 @app.route('/api/reload', methods=['GET'])
-def reload():
+def load_config():
+    global config
     with open('config.json', 'r') as read_file:
         config = json.load(read_file)
-    return jsonify(config)
+    if 'brightness' in config and not test_mode:
+        unicornhatmini.set_brightness(config['brightness'])
+    return '200 - OK'
 
 @app.route('/api/presence', methods=['POST'])
 def set_presence():
@@ -96,9 +96,9 @@ def set_override():
 
 
 if __name__ == '__main__':
+    load_config()
     if not test_mode:
-        if 'brightness' in config:
-            unicornhatmini.set_brightness(config['brightness'])
         unicornhatmini.clear()
-    set_state(config['default_state'])
+    if 'default_state' in config:
+        set_state(config['default_state'])
     app.run(host='0.0.0.0')
