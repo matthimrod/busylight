@@ -28,6 +28,9 @@ def set_state(text):
     if text in config['statuses']:
         set_color(config['statuses'][text])
         print(f"State {text}; {config['statuses'][text]}.")
+    elif text == 'off':
+        set_color('off')
+        print(f"State off.")
     elif text in config['colors']:
         set_color(config[text])
         print(f"Color {text}.")
