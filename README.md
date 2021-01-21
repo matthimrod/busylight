@@ -12,7 +12,7 @@ Raspberry Pi busy indicator light
 Start the client in the background by running the following in PowerShell:
 
 ```PowerShell
-Start-Job -FileName queryLyncStatus.ps1
+Start-Job -FileName LyncClient.ps1
 ```
 
 Stop the client using the following:
@@ -34,3 +34,35 @@ $ sudo raspi-config nonint do_spi 0
 $ pip3 install -r requirements.txt
 ```
 
+## Configuration
+
+```json
+{
+    "brightness": 0.1,
+    "default_state": "off",
+    "colors": {
+        "red":    [255,   0,   0],
+        "orange": [255,  48,   0],
+        "yellow": [255, 192,   0],
+        "green":  [  0, 128,   0],
+        "blue":   [  0,   0, 255],
+        "purple": [128,   0, 128],
+        "white":  [255, 255, 255]
+    },
+    "statuses": {
+        "away":            "off",
+        "berightback":     "off",
+        "busy":         "orange",
+        "donotdisturb":    "red",
+        "free":          "green",
+        "in-a-meeting":    "red",
+        "in-presentation": "red", 
+        "on-the-phone":    "red"
+    }
+}
+```
+
+brightness: Default brightness percentage (0.00 to 1.00)
+default_state: Default state of the light when the server initializes
+colors: map of names to RGB values
+statuses: map of status names (from Lync API) to colors

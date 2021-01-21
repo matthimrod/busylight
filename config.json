@@ -18,7 +18,6 @@
         "free":          "green",
         "in-a-meeting":    "red",
         "in-presentation": "red", 
-        "init":            "off",
         "on-the-phone":    "red"
     }
 }
