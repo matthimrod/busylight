@@ -63,6 +63,9 @@ $ pip3 install -r requirements.txt
 ```
 
 brightness: Default brightness percentage (0.00 to 1.00)
+
 default_state: Default state of the light when the server initializes
+
 colors: map of names to RGB values
+
 statuses: map of status names (from Lync API) to colors
