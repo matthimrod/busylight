@@ -1,0 +1,23 @@
+{
+    "brightness": 0.1,
+    "default_state": "off",
+    "colors": {
+        "red":    [255,   0,   0],
+        "orange": [255,  48,   0],
+        "yellow": [255, 192,   0],
+        "green":  [  0, 128,   0],
+        "blue":   [  0,   0, 255],
+        "purple": [128,   0, 128],
+        "white":  [255, 255, 255]
+    },
+    "statuses": {
+        "away":            "off",
+        "berightback":     "off",
+        "busy":         "orange",
+        "donotdisturb":    "red",
+        "free":          "green",
+        "in-a-meeting":    "red",
+        "in-presentation": "red", 
+        "on-the-phone":    "red"
+    }
+}
