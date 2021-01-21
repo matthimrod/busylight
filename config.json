@@ -1,4 +1,5 @@
 {
+    "default_state": "off",
     "colors": {
         "red":    [255,   0,   0],
         "orange": [255,  48,   0],
@@ -10,16 +11,14 @@
         "off":    [  0,   0,   0]
     },
     "statuses": {
-        "away":          "green",
-        "berightback":  "yellow",
-        "busy":         "yellow",
+        "away":            "off",
+        "berightback":     "off",
+        "busy":         "orange",
         "donotdisturb":    "red",
         "free":          "green",
         "in-a-meeting":    "red",
         "in-presentation": "red", 
         "init":            "off",
-        "on-the-phone":    "red",
-        "other":          "blue",
-        "off":             "off"
+        "on-the-phone":    "red"
     }
 }

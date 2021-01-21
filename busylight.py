@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 import json
+import sys
 from flask import Flask, request
 from flask.json import jsonify
 from unicornhatmini import UnicornHATMini
 app = Flask(__name__)
 
-test_mode = True
+test_mode = '--test' in sys.argv
 
 if not test_mode:
     unicornhatmini = UnicornHATMini()
@@ -27,12 +28,11 @@ def set_state(text):
     if text in config['statuses']:
         set_color(config['statuses'][text])
         print(f"State {text}; {config['statuses'][text]}.")
-    elif: text in config['colors']:
+    elif text in config['colors']:
         set_color(config[text])
         print(f"Color {text}.")
     else: 
-        set_color(config['statuses']['other'])
-        print(f"Undefined state {text}; Using {config['statuses']['other']}.")
+        print(f"Undefined state {text}.")
 
 def set_color(color):
     if test_mode: 
@@ -49,7 +49,7 @@ def set_color(color):
 def get_color():
     if color in status:
         return status['color']
-    else
+    else:
         return 'off'
 
 @app.route('/api/config', methods=['GET'])
@@ -94,7 +94,8 @@ def set_override():
 
 if __name__ == '__main__':
     if not test_mode:
-        unicornhatmini.set_brightness(bright)
+        if 'brightness' in config:
+            unicornhatmini.set_brightness(config['brightness'])
         unicornhatmini.clear()
-    set_state(status['presence'])
+    set_state(config['default_state'])
     app.run(host='0.0.0.0')
