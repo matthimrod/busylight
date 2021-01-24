@@ -15,10 +15,9 @@ $LastActivity = ""
 while($true){
     try {
         $activity = $Lync.Self.Contact.GetContactInformation("ActivityId")
-    } catch {
-        Start-Process "C:\Program Files (x86)\Microsoft Office\root\Office16\lync.exe"
-        start-sleep –Seconds $Delay 
-        $Lync = [Microsoft.Lync.Model.LyncClient]::GetClient()
+    } catch [System.Management.Automation.MethodInvocationException] {
+        Invoke-RestMethod -Uri $Url -Method 'Post' -Body @{ state = 'off' }
+        Exit
     }
     
     if ($activity -ne $LastActivity) {
