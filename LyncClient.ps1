@@ -10,6 +10,7 @@ try {
     $Lync = [Microsoft.Lync.Model.LyncClient]::GetClient()
 }
 
+
 $LastActivity = ""
 
 while($true){
