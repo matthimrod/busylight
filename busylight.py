@@ -2,7 +2,7 @@
 
 import json
 import sys
-from flask import Flask, request
+from flask import Flask, request, redirect
 from flask.json import jsonify
 from unicornhatmini import UnicornHATMini
 app = Flask(__name__)
@@ -52,6 +52,64 @@ def get_color():
 def heartbeat():
     return '200 - OK'
 
+@app.route('/')
+def root():
+    if status['color'] == 'off':
+        current = '#000000'
+    else:
+        current = '#%02x%02x%02x' % (config['colors'][status['color']][0],config['colors'][status['color']][1],config['colors'][status['color']][2])
+    return """
+<html>
+    <head>
+        <meta http-equiv="refresh" content="30">
+        <style>
+            p {{
+                display: block;
+                width: 100%;
+                max-width: 400px;
+                padding: 16px;
+                margin: 0 auto 16px auto;
+                box-sizing: border-box;
+                border-style: none;
+                border-radius: 6px;
+               
+            }}
+            
+            .btn {{
+                display: block;
+                width: 100%;
+                max-width: 400px;
+                padding: 16px;
+                margin: 0 auto 16px auto;
+                box-sizing: border-box;
+                border-style: none;
+                border-radius: 6px;
+                font-size: 1.5em;
+            }}
+        </style>
+    </head>
+    <body>
+        <p align='center'>
+            <svg width="300" height="120">
+                <rect width="300" height="120" style="fill:{};stroke-width:3;stroke:black" />
+            </svg>
+        </p>
+        <p>
+            <form action="http://busylight.lan:5000/api/presence" method="post">
+                <input class='btn' type="submit" name="state" value="purple" />
+                <input class='btn' type="submit" name="state" value="blue" />
+                <input class='btn' type="submit" name="state" value="green" />
+                <input class='btn' type="submit" name="state" value="yellow" />
+                <input class='btn' type="submit" name="state" value="orange" />
+                <input class='btn' type="submit" name="state" value="red" />
+                <input class='btn' type="submit" name="state" value="off" />
+                <input type='hidden' name='redirect' value='true' />
+            </form>
+        </p>
+    </body>
+</html>
+""".format(current)
+
 @app.route('/api/config', methods=['GET'])
 def get_config():
     return jsonify(config)
@@ -75,7 +133,10 @@ def set_presence():
         status['presence'] = request.form.get('state').lower()
         if not status['override']:
             set_state(status['presence'])
-            return f"Presence {status['presence']} received."
+            if request.form.get('redirect') == 'true':
+                return redirect('/')
+            else:
+                return f"Presence {status['presence']} received."
         else:
             return f"Presence {status['presence']} received. Override {status['override']} active."
     else:
