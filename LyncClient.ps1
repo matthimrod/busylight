@@ -22,8 +22,13 @@ while($true){
     }
     
     if ($activity -ne $LastActivity) {
-        Invoke-RestMethod -Uri $Url -Method 'Post' -Body @{ state = $activity }
-        $LastActivity = $activity
+        try {
+            Invoke-RestMethod -Uri $Url -Method 'Post' -Body @{ state = $activity }
+            $LastActivity = $activity
+        } catch [System.Object] {
+            start-sleep 1
+        }
+                
     }
     start-sleep –Seconds $Delay 
 }
