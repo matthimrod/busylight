@@ -16,7 +16,7 @@ $LastActivity = ""
 while($true){
     try {
         $activity = $Lync.Self.Contact.GetContactInformation("ActivityId")
-    } catch [System.Management.Automation.MethodInvocationException] {
+    } catch {
         Invoke-RestMethod -Uri $Url -Method 'Post' -Body @{ state = 'off' }
         Exit
     }
