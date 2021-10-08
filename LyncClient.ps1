@@ -82,5 +82,5 @@ while($true){
         }
                 
     }
-    start-sleep –Seconds $Delay 
+    start-sleep -Seconds $Delay 
 }
