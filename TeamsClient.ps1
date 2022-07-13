@@ -13,7 +13,7 @@ $LastActivity = ""
 
 while($true){
 
-    $LogContent = Get-Content $TeamsLogFile -tail 1000 | Select-String -Pattern 'StatusIndicatorStateService\: Added (\w+) [^|]*')
+    $LogContent = Get-Content $TeamsLogFile -tail 1000 | Select-String -Pattern 'StatusIndicatorStateService\: Added (\w+) [^|]*'
     $activity = $LogContent.Matches[$LogContent.Matches.Length - 1].Groups[1].Value
 
     if ($null -ne $activity -and $activity -ne $LastActivity) {
