@@ -1,5 +1,7 @@
 {
     "brightness": 0.1,
+    "calendar_enabled": false,
+    "calendar_url": "https://calendar.google.com/calendar/ical/himrodma%40upmc.edu/public/basic.ics",
     "default_state": "off",
     "colors": {
         "red":    [255,   0,   0],
@@ -13,11 +15,15 @@
     "statuses": {
         "away":            "off",
         "berightback":     "off",
-        "busy":         "orange",
+        "busy":         "purple",
         "donotdisturb":    "red",
         "free":          "green",
         "in-a-meeting":    "red",
         "in-presentation": "red", 
-        "on-the-phone":    "red"
+        "on-the-phone":    "red",
+        "available":     "green",
+        "presenting":      "red",
+        "onthephone":      "red",
+        "inameeting":      "red"
     }
 }

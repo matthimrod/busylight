@@ -1,34 +1,42 @@
 #!/usr/bin/env python3
 
 import json
+import requests
 import sys
+import time
+import atexit
+
+from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime
 from flask import Flask, request, redirect
 from flask.json import jsonify
-from unicornhatmini import UnicornHATMini
+from ics import Calendar
 app = Flask(__name__)
 
 test_mode = '--test' in sys.argv
 
 if not test_mode:
+    from unicornhatmini import UnicornHATMini
     unicornhatmini = UnicornHATMini()
+    display_width, display_height = unicornhatmini.get_shape()
 
 status = { 
     'presence': None,
     'override': None
 }
 
-def set_state(text):
-    if text in config['statuses']:
-        set_color(config['statuses'][text])
-        print(f"State {text}; {config['statuses'][text]}.")
-    elif text == 'off':
+def set_state(state):
+    if state in config['statuses']:
+        set_color(config['statuses'][state])
+        print(f"State {state}; {config['statuses'][state]}.")
+    elif state == 'off':
         set_color('off')
         print(f"State off.")
-    elif text in config['colors']:
-        set_color(text)
-        print(f"Color {text}.")
+    elif state in config['colors']:
+        set_color(state)
+        print(f"Color {state}.")
     else: 
-        print(f"Undefined state {text}.")
+        print(f"Undefined state {state}.")
 
 def set_color(color):
     if color == 'off':
@@ -60,6 +68,37 @@ def get_config():
 def get_state():
     return jsonify(status)
 
+def load_calendar():
+    global calendar
+    global config
+    if config['calendar_enabled']:
+        print(f"{datetime.now()} Loading calendar from {config['calendar_url']}")
+        calendar = Calendar(requests.get(config['calendar_url']).text)
+        print(f"{datetime.now()} Finished loading calendar")
+
+@app.route('/api/calendar', methods=['GET'])
+def set_calendar():
+    global calendar
+    if config['calendar_enabled']:
+        print("Setting based on calendar")
+        if calendar:
+            busy = False
+            events = list(calendar.timeline.now())
+            for event in events: 
+                if not event.all_day:
+                    busy = True
+            if busy:
+                set_calendar_state("busy")
+            else:
+                set_calendar_state("off")
+    if request:
+        return get_return()
+
+def set_calendar_state(state):
+    status['presence'] = state
+    if not status['override']:
+        set_state(status['presence'])
+
 @app.route('/api/reload', methods=['GET'])
 def load_config():
     global config
@@ -67,7 +106,9 @@ def load_config():
         config = json.load(read_file)
     if 'brightness' in config and not test_mode:
         unicornhatmini.set_brightness(config['brightness'])
-    return '200 - OK'
+    load_calendar()
+    if request:
+        return get_config()
 
 @app.route('/api/presence', methods=['POST'])
 def set_presence():
@@ -93,10 +134,13 @@ def set_override():
         return f"Unable to process request.", 400
 
 def get_return():
-    if request.form.get('redirect') == 'true':
-        return redirect('/')
+    if request:
+        if request.form.get('redirect') == 'true':
+            return redirect('/')
+        else:
+            return jsonify(status)
     else:
-        return jsonify(status)
+        return
 
 @app.route('/')
 def root():
@@ -167,9 +211,28 @@ def root():
                 <input type='hidden' name='redirect' value='true' />
             </form>
         </p>
+        <h1 align='center'>Utilities</h1>
+        <p>
+            <form action="/api/config" method="get">
+                <button class='btn' type="submit">Display Configuration</button>
+                <input type='hidden' name='redirect' value='true' />
+            </form>
+            <form action="/api/reload" method="get">
+                <button class='btn' type="submit">Reload Config/Calendar</button>
+                <input type='hidden' name='redirect' value='true' />
+            </form>
+        </p>
     </body>
 </html>
 """.format(current)
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=load_calendar, trigger="interval", seconds=900)
+scheduler.add_job(func=set_calendar, trigger="interval", seconds=60)
+scheduler.start()
+
+# Shut down the scheduler when exiting the app
+atexit.register(lambda: scheduler.shutdown())
 
 if __name__ == '__main__':
     load_config()
@@ -177,4 +240,5 @@ if __name__ == '__main__':
         unicornhatmini.clear()
     if 'default_state' in config:
         set_state(config['default_state'])
+    set_calendar()
     app.run(host='0.0.0.0')
