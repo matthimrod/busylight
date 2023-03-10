@@ -17,6 +17,7 @@ status = {
     'override': None
 }
 
+
 def set_state(text):
     if text in config['statuses']:
         set_color(config['statuses'][text])
@@ -27,8 +28,9 @@ def set_state(text):
     elif text in config['colors']:
         set_color(text)
         print(f"Color {text}.")
-    else: 
+    else:
         print(f"Undefined state {text}.")
+
 
 def set_color(color):
     if color == 'off':
@@ -42,7 +44,8 @@ def set_color(color):
             unicornhatmini.set_all(config['colors'][color][0],config['colors'][color][1],config['colors'][color][2])
             unicornhatmini.show()
 
-def get_color():
+
+def get_color(color):
     if color in status:
         return status['color']
     else:
