@@ -1,9 +1,2 @@
-click==7.1.2
-Flask==1.1.2
-itsdangerous==1.1.0
-Jinja2==2.11.2
-MarkupSafe==1.1.1
-RPi.GPIO==0.7.0
-spidev==3.5
-unicornhatmini==0.0.2
-Werkzeug==1.0.1
+Flask
+unicornhatmini
