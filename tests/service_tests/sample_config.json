@@ -1,0 +1,31 @@
+{
+    "default_brightness": 1.0,
+    "default_state": "off",
+    "colors": {
+        "red": "#ff0000",
+        "orange": "#ff3000",
+        "yellow": "#ffc000",
+        "green": "#008000",
+        "blue": "#0000ff",
+        "purple": "#800080",
+        "white": "#ffffff"
+    },
+    "states": {
+        "away": {"color": "off", 
+                 "scenes": ["Webcam", "off"]},
+        "berightback": {"color": "off", 
+                        "scenes": ["Webcam", "off"]},
+        "busy": {"color": "orange", 
+                 "scenes": ["Webcam", "off"]},
+        "donotdisturb": {"color": "red", 
+                         "scenes": ["Webcam", "off"]},
+        "free": {"color": "green", 
+                 "scenes": ["Webcam", "off"]},
+        "in-a-meeting": {"color": "red", 
+                         "scenes": ["Webcam", "Webcam"]},
+        "in-presentation": {"color": "red", 
+                            "scenes": ["Webcam", "Webcam"]},
+        "on-the-phone": {"color": "red", 
+                         "scenes": ["Webcam", "Webcam"]}
+    }
+}

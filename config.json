@@ -1,5 +1,5 @@
 {
-    "brightness": 0.1,
+    "default_brightness": 0.1,
     "default_state": "off",
     "colors": {
         "red":    [255,   0,   0],
