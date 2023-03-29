@@ -2,12 +2,11 @@
 
 Raspberry Pi busy indicator light
 
-## Requirements
-
-### PowerShell Client
+## PowerShell Client
 
 The PowerShell-based client has been moved to its own repository [here](https://github.com/matthimrod/busylight_client).
-### Server
+
+## Server
 
 * Raspberry Pi / Raspberry Pi Zero with SPI enabled (see below)
 * Pimoroni Unicorn HAT Mini for Raspberry Pi - PIM498 (https://www.adafruit.com/product/4637)
@@ -17,11 +16,11 @@ $ sudo raspi-config nonint do_spi 0
 $ pip3 install -r requirements.txt
 ```
 
-## Configuration
+### Configuration
 
 ```json
 {
-    "brightness": 0.1,
+    "default_brightness": 0.1,
     "default_state": "off",
     "colors": {
         "red":    [255,   0,   0],
