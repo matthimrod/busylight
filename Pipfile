@@ -1,0 +1,11 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+Flask = "*"
+unicornhatmini = { version="*", markers="platform_machine=='armv6l' or platform_machine=='armv7l'" }
+
+[dev-packages]
+autopep8 = "*"

@@ -2,29 +2,32 @@
 
 import json
 import sys
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, Response
 from flask.json import jsonify
 from unicornhatmini import UnicornHATMini
+
 app = Flask(__name__)
 
 test_mode = '--test' in sys.argv
+global config
+global status
 
 if not test_mode:
     unicornhatmini = UnicornHATMini()
 
-status = { 
+status = {
     'presence': None,
     'override': None
 }
 
 
-def set_state(text):
+def set_state(text: str) -> None:
     if text in config['statuses']:
         set_color(config['statuses'][text])
         print(f"State {text}; {config['statuses'][text]}.")
     elif text == 'off':
         set_color('off')
-        print(f"State off.")
+        print("State off.")
     elif text in config['colors']:
         set_color(text)
         print(f"Color {text}.")
@@ -32,45 +35,52 @@ def set_state(text):
         print(f"Undefined state {text}.")
 
 
-def set_color(color):
+def set_color(color: str) -> None:
     if color == 'off':
-        status['color']='off'
-        if not test_mode: 
+        status['color'] = 'off'
+        if not test_mode:
             unicornhatmini.clear()
             unicornhatmini.show()
     elif color in config['colors']:
-        status['color']=color
-        if not test_mode: 
-            unicornhatmini.set_all(config['colors'][color][0],config['colors'][color][1],config['colors'][color][2])
+        status['color'] = color
+        if not test_mode:
+            unicornhatmini.set_all(config['colors'][color][0],
+                                   config['colors'][color][1],
+                                   config['colors'][color][2])
             unicornhatmini.show()
 
 
-def get_color(color):
+def get_color(color: str) -> str:
     if color in status:
         return status['color']
     else:
         return 'off'
 
+
 @app.route('/heartbeat', methods=['GET'])
-def heartbeat():
+def heartbeat() -> str:
     return '200 - OK'
 
+
 @app.route('/api/config', methods=['GET'])
-def get_config():
+def get_config() -> str | Response:
     return jsonify(config)
 
+
 @app.route('/api/state', methods=['GET'])
-def get_state():
+def get_state() -> str | Response:
     return jsonify(status)
 
+
 @app.route('/api/reload', methods=['GET'])
-def load_config():
+def load_config() -> str:
     global config
     with open('config.json', 'r') as read_file:
         config = json.load(read_file)
     if 'brightness' in config and not test_mode:
         unicornhatmini.set_brightness(config['brightness'])
     return '200 - OK'
+
 
 @app.route('/api/presence', methods=['POST'])
 def set_presence():
@@ -80,7 +90,8 @@ def set_presence():
             set_state(status['presence'])
         return get_return()
     else:
-        return f"Unable to process request.", 400
+        return "Unable to process request.", 400
+
 
 @app.route('/api/override', methods=['POST'])
 def set_override():
@@ -93,20 +104,24 @@ def set_override():
         set_state(status['presence'])
         return get_return()
     else:
-        return f"Unable to process request.", 400
+        return "Unable to process request.", 400
 
-def get_return():
+
+def get_return() -> Response:
     if request.form.get('redirect') == 'true':
         return redirect('/')
     else:
         return jsonify(status)
 
+
 @app.route('/')
-def root():
+def root() -> str:
     if status['color'] == 'off':
         current = '#000000'
     else:
-        current = '#%02x%02x%02x' % (config['colors'][status['color']][0],config['colors'][status['color']][1],config['colors'][status['color']][2])
+        current = '#%02x%02x%02x' % (
+            config['colors'][status['color']][0], config['colors'][status['color']][1],
+            config['colors'][status['color']][2])
     return """
 <html>
     <head>
@@ -173,6 +188,7 @@ def root():
     </body>
 </html>
 """.format(current)
+
 
 if __name__ == '__main__':
     load_config()
