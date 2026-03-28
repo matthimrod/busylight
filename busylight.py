@@ -11,7 +11,12 @@ from datetime import datetime
 from flask import Flask, request, redirect
 from flask.json import jsonify
 from ics import Calendar
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(
+    app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
+)
 
 test_mode = '--test' in sys.argv
 
@@ -241,4 +246,4 @@ if __name__ == '__main__':
     if 'default_state' in config:
         set_state(config['default_state'])
     set_calendar()
-    app.run(host='0.0.0.0')
+    app.run(host='::')
